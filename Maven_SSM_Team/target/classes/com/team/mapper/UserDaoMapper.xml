@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserDaoMapper">
+	<sql id="usertable">
+		T_USER
+	</sql>
+	<sql id="userkey">
+		ID,
+		USERNAME,
+		PASSWORD
+	</sql>
+	<sql id="uservalue">
+		#{id},
+		#{username},
+		#{password}
+	</sql>
+	<!-- 查询全部 -->
+	<select id="query" parameterType="com.team.user.entity.User"
+		resultType="map">
+		select <![CDATA[Rownum]]>,
+		<include refid="userkey"></include>
+		from  	
+		<include refid="usertable"></include>
+	</select>
+	<!-- 条件查询 -->
+	<select id="queryBy" parameterType="map"
+		resultType="map">
+		select <![CDATA[ROWNUM rown]]>,
+		<include refid="userkey"></include>
+		from
+		<include refid="usertable"></include>
+		<trim prefix="WHERE" prefixOverrides="AND|OR">
+			<if test="user.id!=null">
+				ID=#{user.id,jdbcType=VARCHAR}
+			</if>
+			<if test="user.username!=null">
+			AND	USERNAME=#{user.username,jdbcType=VARCHAR}
+			</if>
+			<if test="user.password!=null">
+			AND	PASSWORD=#{user.password,jdbcType=VARCHAR}
+			</if>
+		</trim>
+	</select>
+	<!-- 添加 -->
+	<insert id="insert" parameterType="com.team.user.entity.User">
+		<selectKey resultType="java.lang.String" order="BEFORE"
+			keyProperty="id">
+			select sys_guid() from dual
+		</selectKey>
+		insert into
+		<include refid="usertable"></include>
+		values(#{id,jdbcType=VARCHAR},#{username,jdbcType=VARCHAR},#{password,jdbcType=VARCHAR})
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="com.team.user.entity.User">
+		update
+		<include refid="usertable"></include>
+		<trim prefix="set" prefixOverrides=",">
+			<if test="username!=null">
+				USERNAME=#{username,jdbcType=VARCHAR},
+			</if>
+			<if test="password!=null">
+				PASSWORD=#{password,jdbcType=VARCHAR}
+			</if>
+		</trim>
+		<where>
+			ID=#{id,jdbcType=VARCHAR}
+		</where>
+	</update>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="com.team.user.entity.User">
+		delete from
+		<include refid="usertable"></include>
+		<where>
+			<if test="id!=null">
+				ID=#{id,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</delete>
+</mapper>

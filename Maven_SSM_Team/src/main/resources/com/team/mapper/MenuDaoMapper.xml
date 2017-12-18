@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MenuDaoMapper">
+	<sql id="menutable">
+		T_MENU
+	</sql>
+	<sql id="menukey">
+		MID,
+		MNAME,
+		MDESCIRBE,
+		ISADMIN,
+		FID
+	</sql>
+	<sql id="menuvalue">
+		#{mid},
+		#{mname},
+		#{mdescirbe},
+		#{isadmin},
+		#{fid}
+	</sql>
+	<!-- 查询全部 -->
+	<select id="query" parameterType="com.team.menu.entity.Menu"
+		resultType="map">
+		select <![CDATA[Rownum rown]]>,
+		<include refid="menukey"></include>
+		from
+		<include refid="menutable"></include>
+	</select>
+	
+	<!-- 条件查询 -->
+	<select id="queryBy" parameterType="map"
+		resultType="map">
+		select <![CDATA[ROWNUM rown]]>,
+		<include refid="menukey"></include>
+		from
+		t_user u join t_user_role ur on u.id=ur.userid join t_role r on ur.rid=r.rid join t_role_menu rm on r.rid=rm.roleid join t_menu m on rm.menuid=m.mid 
+		<trim prefix="WHERE" prefixOverrides="AND|OR">
+		  <if test="userid!=null">
+					id=#{userid}
+					</if>
+			<if test="menu.isadmin!=null">
+			 	AND	m.ISADMIN=#{menu.isadmin}
+			</if>
+			<if test="menu.mid!=null">
+			 	AND	m.MID=#{menu.mid}
+			</if>
+		</trim>
+	</select>
+	
+	<!-- 添加 -->
+	<insert id="insert" parameterType="com.team.menu.entity.Menu">
+		<selectKey resultType="java.lang.String" order="BEFORE"
+			keyProperty="mid">
+			select sys_guid() from dual
+		</selectKey>
+		insert into
+		<include refid="menutable"></include>
+		values(
+		#{mid,jdbcType=VARCHAR},#{mname,jdbcType=VARCHAR},#{mdescirbe,jdbcType=VARCHAR},#{isadmin,jdbcType=VARCHAR},#{fid,jdbcType=VARCHAR}
+		)
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="com.team.menu.entity.Menu">
+		update
+		<include refid="menutable"></include>
+		<trim prefix="set" prefixOverrides=",">
+			<if test="mname!=null">
+				MNAME=#{mname,jdbcType=VARCHAR},
+			</if>
+			<if test="mdescirbe!=null">
+				MDESCIRBE=#{mdescirbe,jdbcType=VARCHAR}
+			</if>
+			<if test="isadmin!=null">
+				ISADMIN=#{isadmin,jdbcType=VARCHAR}
+			</if>
+			<if test="fid!=null">
+				FID=#{fid,jdbcType=VARCHAR}
+			</if>
+		</trim>
+		<where>
+			MID=#{mid,jdbcType=VARCHAR}
+		</where>
+	</update>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="com.team.menu.entity.Menu">
+		delete from
+		<include refid="menutable"></include>
+		<where>
+			<if test="mid!=null">
+				MID=#{mid,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</delete>
+</mapper>
